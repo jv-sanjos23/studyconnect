@@ -1,6 +1,8 @@
-
 import 'package:flutter/material.dart';
 import 'widgets.dart';
+import 'nova_atividade_page.dart';
+import 'dados.dart';
+import 'tarefas_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -12,24 +14,8 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int paginaSelecionada = 0;
 
-  // LISTA DE ATIVIDADES
-  List<Map<String, dynamic>> atividades = [
-    {
-      'etiquetas': ['Tarefa', 'Redação'],
-      'titulo': 'Redação sobre combate ao racismo.',
-      'horario': 'Hoje às 23:00',
-    },
-    {
-      'etiquetas': ['Trabalho', 'Biologia', 'Prioridade'],
-      'titulo': 'Projeto de biologia.',
-      'horario': '',
-    },
-    {
-      'etiquetas': ['Prova', 'Português'],
-      'titulo': 'Prova de português.',
-      'horario': 'Hoje às 23:00',
-    },
-  ];
+  // LISTA DE ATIVIDADES (compartilhada com a tela de tarefas)
+  List<Map<String, dynamic>> get atividades => atividadesGlobais;
 
   // LISTA DE EXERCÍCIOS
   List<Map<String, String>> exercicios = [
@@ -87,26 +73,17 @@ class _HomePageState extends State<HomePage> {
   }
 
   // BOTÃO ADICIONAR
-  void adicionar() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: fundoCard,
-        title: const Text('Adicionar atividade'),
-        content: const Text(
-          'Aqui você poderá cadastrar uma nova atividade.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text(
-              'Fechar',
-              style: TextStyle(color: azul),
-            ),
-          ),
-        ],
-      ),
+  Future<void> adicionar() async {
+    final nova = await Navigator.push<Map<String, dynamic>>(
+      context,
+      MaterialPageRoute(builder: (_) => const NovaAtividadePage()),
     );
+
+    if (nova != null) {
+      setState(() {
+        atividades.insert(0, nova);
+      });
+    }
   }
 
   @override
@@ -354,10 +331,18 @@ class _HomePageState extends State<HomePage> {
       // MENU INFERIOR
       bottomNavigationBar: BottomMenu(
         selectedIndex: paginaSelecionada,
-        onTap: (index) {
-          setState(() {
-            paginaSelecionada = index;
-          });
+        onTap: (index) async {
+          if (index == 1) {
+            await Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const TarefasPage()),
+            );
+            setState(() {}); // atualiza a Home ao voltar
+          } else {
+            setState(() {
+              paginaSelecionada = index;
+            });
+          }
         },
         onAdd: adicionar,
       ),
@@ -473,6 +458,3 @@ class _HomePageState extends State<HomePage> {
     );
   }
 }
-
-
-
