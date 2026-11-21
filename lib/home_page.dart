@@ -3,6 +3,7 @@ import 'widgets.dart';
 import 'nova_atividade_page.dart';
 import 'dados.dart';
 import 'tarefas_page.dart';
+import 'cronograma_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -84,6 +85,15 @@ class _HomePageState extends State<HomePage> {
         atividades.insert(0, nova);
       });
     }
+  }
+
+  // ABRE OUTRA TELA E ATUALIZA A HOME AO VOLTAR
+  Future<void> _abrirTela(Widget tela) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => tela),
+    );
+    setState(() {});
   }
 
   @override
@@ -240,12 +250,15 @@ class _HomePageState extends State<HomePage> {
 
                         const Spacer(),
 
-                        const Text(
-                          'Ver todas →',
-                          style: TextStyle(
-                            color: azul,
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
+                        GestureDetector(
+                          onTap: () => _abrirTela(const TarefasPage()),
+                          child: const Text(
+                            'Ver todas →',
+                            style: TextStyle(
+                              color: azul,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                       ],
@@ -290,12 +303,15 @@ class _HomePageState extends State<HomePage> {
 
                         const Spacer(),
 
-                        const Text(
-                          'Cronograma →',
-                          style: TextStyle(
-                            color: azul,
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
+                        GestureDetector(
+                          onTap: () => _abrirTela(const CronogramaPage()),
+                          child: const Text(
+                            'Cronograma →',
+                            style: TextStyle(
+                              color: azul,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                       ],
@@ -331,13 +347,11 @@ class _HomePageState extends State<HomePage> {
       // MENU INFERIOR
       bottomNavigationBar: BottomMenu(
         selectedIndex: paginaSelecionada,
-        onTap: (index) async {
+        onTap: (index) {
           if (index == 1) {
-            await Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const TarefasPage()),
-            );
-            setState(() {}); // atualiza a Home ao voltar
+            _abrirTela(const TarefasPage());
+          } else if (index == 2) {
+            _abrirTela(const CronogramaPage());
           } else {
             setState(() {
               paginaSelecionada = index;
@@ -374,24 +388,13 @@ class _HomePageState extends State<HomePage> {
                   Wrap(
                     spacing: 5,
                     children: etiquetas.map((tag) {
-                      Color cor = switch (tag) {
-                        'Tarefa' => const Color(0xFF226C51),
-                        'Redação' => const Color(0xFF344B8A),
-                        'Trabalho' => const Color(0xFF344B8A),
-                        'Biologia' => const Color(0xFF226C51),
-                        'Prioridade' => const Color(0xFF713D55),
-                        'Prova' => const Color(0xFF713D55),
-                        'Português' => const Color(0xFF344B8A),
-                        _ => Colors.teal,
-                      };
-
                       return Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 8,
                           vertical: 2,
                         ),
                         decoration: BoxDecoration(
-                          color: cor,
+                          color: corDaEtiqueta(tag),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Text(
