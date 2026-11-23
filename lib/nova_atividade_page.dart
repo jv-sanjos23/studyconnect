@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
 import 'widgets.dart';
 import 'dados.dart';
+import 'cronograma_page.dart';
 
 class NovaAtividadePage extends StatefulWidget {
-  const NovaAtividadePage({super.key});
+  final Map<String, dynamic>? atividadeInicial;
+
+  const NovaAtividadePage({
+    super.key,
+    this.atividadeInicial,
+  });
 
   @override
   State<NovaAtividadePage> createState() => _NovaAtividadePageState();
@@ -11,6 +17,7 @@ class NovaAtividadePage extends StatefulWidget {
 
 class _NovaAtividadePageState extends State<NovaAtividadePage> {
   final _formKey = GlobalKey<FormState>();
+
   final _tituloController = TextEditingController();
   final _materiaController = TextEditingController();
   final _descricaoController = TextEditingController();
@@ -19,6 +26,55 @@ class _NovaAtividadePageState extends State<NovaAtividadePage> {
   bool prioridade = false;
   DateTime? data;
   TimeOfDay? hora;
+
+  @override
+  void initState() {
+    super.initState();
+
+    final atividade = widget.atividadeInicial;
+
+    if (atividade != null) {
+      _tituloController.text = atividade['titulo'] ?? '';
+      _descricaoController.text = atividade['descricao'] ?? '';
+
+      final etiquetas = List<String>.from(
+        atividade['etiquetas'] ?? [],
+      );
+
+      const tipos = ['Tarefa', 'Prova', 'Trabalho'];
+
+      tipo = tipos.firstWhere(
+            (t) => etiquetas.contains(t),
+        orElse: () => 'Tarefa',
+      );
+
+      prioridade = etiquetas.contains('Prioridade');
+
+      final materias = etiquetas.where(
+            (tag) => !tipos.contains(tag) && tag != 'Prioridade',
+      );
+
+      _materiaController.text =
+      materias.isNotEmpty ? materias.first : '';
+
+      final dataSalva = atividade['data'] as DateTime?;
+
+      if (dataSalva != null) {
+        data = DateTime(
+          dataSalva.year,
+          dataSalva.month,
+          dataSalva.day,
+        );
+
+        if (atividade['temHora'] == true) {
+          hora = TimeOfDay(
+            hour: dataSalva.hour,
+            minute: dataSalva.minute,
+          );
+        }
+      }
+    }
+  }
 
   @override
   void dispose() {
@@ -31,19 +87,25 @@ class _NovaAtividadePageState extends State<NovaAtividadePage> {
   // SELETOR DE DATA
   Future<void> _escolherData() async {
     final agora = DateTime.now();
+
     final escolhida = await showDatePicker(
       context: context,
       initialDate: data ?? agora,
-      firstDate: agora,
+      firstDate: DateTime(2000),
       lastDate: agora.add(const Duration(days: 365 * 2)),
       builder: (context, child) => Theme(
         data: ThemeData.dark().copyWith(
-          colorScheme: const ColorScheme.dark(primary: azul),
+          colorScheme: const ColorScheme.dark(
+            primary: azul,
+          ),
         ),
         child: child!,
       ),
     );
-    if (escolhida != null) setState(() => data = escolhida);
+
+    if (escolhida != null) {
+      setState(() => data = escolhida);
+    }
   }
 
   // SELETOR DE HORÁRIO
@@ -53,18 +115,25 @@ class _NovaAtividadePageState extends State<NovaAtividadePage> {
       initialTime: hora ?? TimeOfDay.now(),
       builder: (context, child) => Theme(
         data: ThemeData.dark().copyWith(
-          colorScheme: const ColorScheme.dark(primary: azul),
+          colorScheme: const ColorScheme.dark(
+            primary: azul,
+          ),
         ),
         child: child!,
       ),
     );
-    if (escolhida != null) setState(() => hora = escolhida);
+
+    if (escolhida != null) {
+      setState(() => hora = escolhida);
+    }
   }
 
-  // JUNTA DATA E HORA EM UM ÚNICO DateTime
+  // JUNTA DATA E HORA EM UM ÚNICO DATETIME
   DateTime? _dataCompleta() {
     final base = data ?? (hora != null ? DateTime.now() : null);
+
     if (base == null) return null;
+
     return DateTime(
       base.year,
       base.month,
@@ -74,7 +143,7 @@ class _NovaAtividadePageState extends State<NovaAtividadePage> {
     );
   }
 
-  // SALVAR
+  // SALVAR ATIVIDADE OU ALTERAÇÕES
   void _salvar() {
     if (!_formKey.currentState!.validate()) return;
 
@@ -92,7 +161,7 @@ class _NovaAtividadePageState extends State<NovaAtividadePage> {
       'descricao': _descricaoController.text.trim(),
       'data': dataCompleta,
       'temHora': hora != null,
-      'concluida': false,
+      'concluida': widget.atividadeInicial?['concluida'] ?? false,
     });
   }
 
@@ -100,8 +169,14 @@ class _NovaAtividadePageState extends State<NovaAtividadePage> {
     return InputDecoration(
       labelText: label,
       hintText: hint,
-      labelStyle: const TextStyle(color: Color(0xFF9EADAC), fontSize: 12),
-      hintStyle: const TextStyle(color: Color(0xFF5F6E6D), fontSize: 12),
+      labelStyle: const TextStyle(
+        color: Color(0xFF9EADAC),
+        fontSize: 12,
+      ),
+      hintStyle: const TextStyle(
+        color: Color(0xFF5F6E6D),
+        fontSize: 12,
+      ),
       filled: true,
       fillColor: fundoCard,
       border: OutlineInputBorder(
@@ -143,7 +218,10 @@ class _NovaAtividadePageState extends State<NovaAtividadePage> {
       onTap: onTap,
       borderRadius: BorderRadius.circular(12),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+        padding: const EdgeInsets.symmetric(
+          horizontal: 12,
+          vertical: 14,
+        ),
         decoration: BoxDecoration(
           color: fundoCard,
           borderRadius: BorderRadius.circular(12),
@@ -151,11 +229,18 @@ class _NovaAtividadePageState extends State<NovaAtividadePage> {
         ),
         child: Row(
           children: [
-            Icon(icone, color: azul, size: 18),
+            Icon(
+              icone,
+              color: azul,
+              size: 18,
+            ),
             const SizedBox(width: 8),
             Text(
               texto,
-              style: const TextStyle(color: Colors.white, fontSize: 12),
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 12,
+              ),
             ),
           ],
         ),
@@ -165,7 +250,12 @@ class _NovaAtividadePageState extends State<NovaAtividadePage> {
 
   @override
   Widget build(BuildContext context) {
-    const estiloTexto = TextStyle(color: Colors.white, fontSize: 13);
+    const estiloTexto = TextStyle(
+      color: Colors.white,
+      fontSize: 13,
+    );
+
+    final editando = widget.atividadeInicial != null;
 
     return Scaffold(
       backgroundColor: const Color(0xFF001817),
@@ -174,19 +264,30 @@ class _NovaAtividadePageState extends State<NovaAtividadePage> {
           children: [
             // CABEÇALHO
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 8,
+                vertical: 8,
+              ),
               decoration: const BoxDecoration(
-                border: Border(bottom: BorderSide(color: borda, width: 0.5)),
+                border: Border(
+                  bottom: BorderSide(
+                    color: borda,
+                    width: 0.5,
+                  ),
+                ),
               ),
               child: Row(
                 children: [
                   IconButton(
                     onPressed: () => Navigator.pop(context),
-                    icon: const Icon(Icons.arrow_back, color: azul),
+                    icon: const Icon(
+                      Icons.arrow_back,
+                      color: azul,
+                    ),
                   ),
-                  const Text(
-                    'Nova Atividade',
-                    style: TextStyle(
+                  Text(
+                    editando ? 'Editar Atividade' : 'Nova Atividade',
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 15,
                       fontWeight: FontWeight.bold,
@@ -211,10 +312,13 @@ class _NovaAtividadePageState extends State<NovaAtividadePage> {
                         spacing: 8,
                         children: ['Tarefa', 'Prova', 'Trabalho'].map((t) {
                           final selecionado = tipo == t;
+
                           return ChoiceChip(
                             label: Text(t),
                             selected: selecionado,
-                            onSelected: (_) => setState(() => tipo = t),
+                            onSelected: (_) {
+                              setState(() => tipo = t);
+                            },
                             selectedColor: azul,
                             backgroundColor: fundoCard,
                             side: const BorderSide(color: borda),
@@ -241,9 +345,12 @@ class _NovaAtividadePageState extends State<NovaAtividadePage> {
                           'Título',
                           hint: 'Ex.: Prova de português',
                         ),
-                        validator: (v) => (v == null || v.trim().isEmpty)
-                            ? 'Digite um título'
-                            : null,
+                        validator: (v) {
+                          if (v == null || v.trim().isEmpty) {
+                            return 'Digite um título';
+                          }
+                          return null;
+                        },
                       ),
 
                       const SizedBox(height: 12),
@@ -274,18 +381,24 @@ class _NovaAtividadePageState extends State<NovaAtividadePage> {
                         ),
                         child: Row(
                           children: [
-                            const Icon(Icons.flag_outlined,
-                                color: azul, size: 18),
+                            const Icon(
+                              Icons.flag_outlined,
+                              color: azul,
+                              size: 18,
+                            ),
                             const SizedBox(width: 8),
                             const Expanded(
-                              child: Text('Marcar como prioridade',
-                                  style: estiloTexto),
+                              child: Text(
+                                'Marcar como prioridade',
+                                style: estiloTexto,
+                              ),
                             ),
                             Switch(
                               value: prioridade,
                               activeColor: azul,
-                              onChanged: (v) =>
-                                  setState(() => prioridade = v),
+                              onChanged: (v) {
+                                setState(() => prioridade = v);
+                              },
                             ),
                           ],
                         ),
@@ -324,7 +437,7 @@ class _NovaAtividadePageState extends State<NovaAtividadePage> {
 
                       const SizedBox(height: 16),
 
-                      // DESCRIÇÃO (OPCIONAL)
+                      // DESCRIÇÃO
                       TextFormField(
                         controller: _descricaoController,
                         style: estiloTexto,
@@ -351,9 +464,11 @@ class _NovaAtividadePageState extends State<NovaAtividadePage> {
                               borderRadius: BorderRadius.circular(12),
                             ),
                           ),
-                          child: const Text(
-                            'Salvar atividade',
-                            style: TextStyle(
+                          child: Text(
+                            editando
+                                ? 'Salvar alterações'
+                                : 'Salvar atividade',
+                            style: const TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.bold,
                             ),
@@ -368,6 +483,9 @@ class _NovaAtividadePageState extends State<NovaAtividadePage> {
           ],
         ),
       ),
+
+
+
     );
   }
 }

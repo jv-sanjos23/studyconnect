@@ -62,7 +62,7 @@ class InfoCard extends StatelessWidget {
 }
 
 // MENU INFERIOR
-class BottomMenu extends StatelessWidget {
+class BottomMenu extends StatefulWidget {
   final int selectedIndex;
   final Function(int) onTap;
   final VoidCallback onAdd;
@@ -73,6 +73,13 @@ class BottomMenu extends StatelessWidget {
     required this.onTap,
     required this.onAdd,
   });
+
+  @override
+  State<BottomMenu> createState() => _BottomMenuState();
+}
+
+class _BottomMenuState extends State<BottomMenu> {
+  bool _hover = false;
 
   @override
   Widget build(BuildContext context) {
@@ -97,13 +104,31 @@ class BottomMenu extends StatelessWidget {
           for (int i = 0; i < 2; i++)
             _itemMenu(icones[i], i),
 
-          Transform.translate(
-            offset: const Offset(0, -27),
+          // BOTÃO DE ADICIONAR COM ANIMAÇÃO
+          MouseRegion(
+            cursor: SystemMouseCursors.click,
+            onEnter: (_) {
+              setState(() {
+                _hover = true;
+              });
+            },
+            onExit: (_) {
+              setState(() {
+                _hover = false;
+              });
+            },
             child: GestureDetector(
-              onTap: onAdd,
-              child: Container(
-                width: 48,
-                height: 48,
+              onTap: widget.onAdd,
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                curve: Curves.easeOut,
+                transform: Matrix4.translationValues(
+                  0,
+                  _hover ? -35 : -27,
+                  0,
+                ),
+                width: _hover ? 56 : 48,
+                height: _hover ? 56 : 48,
                 decoration: const BoxDecoration(
                   color: azul,
                   shape: BoxShape.circle,
@@ -126,11 +151,11 @@ class BottomMenu extends StatelessWidget {
 
   Widget _itemMenu(IconData icone, int index) {
     return IconButton(
-      onPressed: () => onTap(index),
+      onPressed: () => widget.onTap(index),
       icon: Icon(
         icone,
         size: 24,
-        color: selectedIndex == index
+        color: widget.selectedIndex == index
             ? azul
             : const Color(0xFF008D8D),
       ),

@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'widgets.dart';
+import 'home_page.dart';
 import 'dados.dart';
 import 'nova_atividade_page.dart';
+import 'cronograma_page.dart';
+import 'materias_page.dart';
 
 class TarefasPage extends StatefulWidget {
   const TarefasPage({super.key});
@@ -12,6 +15,7 @@ class TarefasPage extends StatefulWidget {
 
 class _TarefasPageState extends State<TarefasPage> {
   final _buscaController = TextEditingController();
+
   String filtro = 'Pendentes';
   String busca = '';
 
@@ -25,15 +29,29 @@ class _TarefasPageState extends State<TarefasPage> {
   Future<void> _adicionar() async {
     final nova = await Navigator.push<Map<String, dynamic>>(
       context,
-      MaterialPageRoute(builder: (_) => const NovaAtividadePage()),
+      MaterialPageRoute(
+        builder: (_) => const NovaAtividadePage(),
+      ),
     );
 
     if (nova != null) {
-      setState(() => atividadesGlobais.insert(0, nova));
+      setState(() {
+        atividadesGlobais.insert(0, nova);
+      });
     }
   }
 
-  // FILTRA (pendentes/concluídas + busca) E ORDENA POR DATA
+  // ABRE O CRONOGRAMA
+  void _abrirCronograma() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const CronogramaPage(),
+      ),
+    );
+  }
+
+  // FILTRA AS ATIVIDADES E ORDENA POR DATA
   List<Map<String, dynamic>> _filtradas() {
     final lista = atividadesGlobais.where((a) {
       final concluida = a['concluida'] == true;
@@ -45,17 +63,21 @@ class _TarefasPageState extends State<TarefasPage> {
         final texto =
         '${a['titulo']} ${(a['etiquetas'] as List).join(' ')}'
             .toLowerCase();
+
         if (!texto.contains(busca.toLowerCase())) return false;
       }
+
       return true;
     }).toList();
 
     lista.sort((a, b) {
       final da = a['data'] as DateTime?;
       final db = b['data'] as DateTime?;
+
       if (da == null && db == null) return 0;
       if (da == null) return 1;
       if (db == null) return -1;
+
       return da.compareTo(db);
     });
 
@@ -67,20 +89,27 @@ class _TarefasPageState extends State<TarefasPage> {
     final lista = _filtradas();
 
     final grupos = <String, List<Map<String, dynamic>>>{};
+
     for (final a in lista) {
       grupos.putIfAbsent(grupoDaAtividade(a), () => []).add(a);
     }
 
     return Scaffold(
       backgroundColor: const Color(0xFF001817),
+
       body: SafeArea(
         child: Column(
           children: [
             // CABEÇALHO
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 18,
+                vertical: 12,
+              ),
               decoration: const BoxDecoration(
-                border: Border(bottom: BorderSide(color: borda, width: 0.5)),
+                border: Border(
+                  bottom: BorderSide(color: borda, width: 0.5),
+                ),
               ),
               child: Row(
                 children: [
@@ -97,7 +126,9 @@ class _TarefasPageState extends State<TarefasPage> {
                       size: 18,
                     ),
                   ),
+
                   const SizedBox(width: 8),
+
                   const Text.rich(
                     TextSpan(
                       children: [
@@ -120,8 +151,13 @@ class _TarefasPageState extends State<TarefasPage> {
                       ],
                     ),
                   ),
+
                   const Spacer(),
-                  const Icon(Icons.notifications, color: azul),
+
+                  const Icon(
+                    Icons.notifications,
+                    color: azul,
+                  ),
                 ],
               ),
             ),
@@ -159,7 +195,9 @@ class _TarefasPageState extends State<TarefasPage> {
                             ],
                           ),
                         ),
+
                         const SizedBox(width: 10),
+
                         SizedBox(
                           height: 36,
                           child: ElevatedButton(
@@ -167,8 +205,9 @@ class _TarefasPageState extends State<TarefasPage> {
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF00A8B5),
                               foregroundColor: Colors.white,
-                              padding:
-                              const EdgeInsets.symmetric(horizontal: 30),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 30,
+                              ),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(14),
                               ),
@@ -194,7 +233,11 @@ class _TarefasPageState extends State<TarefasPage> {
                           flex: 3,
                           child: TextField(
                             controller: _buscaController,
-                            onChanged: (v) => setState(() => busca = v.trim()),
+                            onChanged: (v) {
+                              setState(() {
+                                busca = v.trim();
+                              });
+                            },
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 12,
@@ -223,11 +266,15 @@ class _TarefasPageState extends State<TarefasPage> {
                             ),
                           ),
                         ),
+
                         const SizedBox(width: 10),
+
                         Expanded(
                           flex: 2,
                           child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                            ),
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(14),
                               border: Border.all(color: borda),
@@ -248,14 +295,18 @@ class _TarefasPageState extends State<TarefasPage> {
                                 ),
                                 items: ['Pendentes', 'Concluídas', 'Todas']
                                     .map(
-                                      (o) => DropdownMenuItem(
-                                    value: o,
-                                    child: Text(o),
+                                      (opcao) => DropdownMenuItem(
+                                    value: opcao,
+                                    child: Text(opcao),
                                   ),
                                 )
                                     .toList(),
                                 onChanged: (v) {
-                                  if (v != null) setState(() => filtro = v);
+                                  if (v != null) {
+                                    setState(() {
+                                      filtro = v;
+                                    });
+                                  }
                                 },
                               ),
                             ),
@@ -284,7 +335,10 @@ class _TarefasPageState extends State<TarefasPage> {
                     for (final grupo in ordemGrupos)
                       if (grupos.containsKey(grupo)) ...[
                         Padding(
-                          padding: const EdgeInsets.only(bottom: 10, top: 4),
+                          padding: const EdgeInsets.only(
+                            bottom: 10,
+                            top: 4,
+                          ),
                           child: Text(
                             '$grupo:',
                             style: const TextStyle(
@@ -294,11 +348,13 @@ class _TarefasPageState extends State<TarefasPage> {
                             ),
                           ),
                         ),
+
                         for (final a in grupos[grupo]!)
                           Padding(
                             padding: const EdgeInsets.only(bottom: 8),
                             child: _card(a),
                           ),
+
                         const SizedBox(height: 8),
                       ],
                   ],
@@ -313,7 +369,29 @@ class _TarefasPageState extends State<TarefasPage> {
       bottomNavigationBar: BottomMenu(
         selectedIndex: 1,
         onTap: (index) {
-          if (index == 0) Navigator.pop(context);
+          if (index == 0) {
+            // HOME
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const HomePage(),
+              ),
+                  (route) => false,
+            );
+          } else if (index == 2) {
+            // CALENDÁRIO: abre o cronograma
+            _abrirCronograma();
+          } else if (index == 3) {
+            // MATÉRIAS
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const MateriasPage(),
+              ),
+            );
+          }
+
+          // O índice 1 já é a tela de tarefas.
         },
         onAdd: _adicionar,
       ),
@@ -324,6 +402,7 @@ class _TarefasPageState extends State<TarefasPage> {
   Widget _card(Map<String, dynamic> a) {
     final concluida = a['concluida'] == true;
     final etiquetas = List<String>.from(a['etiquetas']);
+
     final horario = formatarHorario(
       a['data'] as DateTime?,
       a['temHora'] == true,
@@ -353,11 +432,15 @@ class _TarefasPageState extends State<TarefasPage> {
                         children: etiquetas.map(_etiqueta).toList(),
                       ),
                     ),
+
                     const SizedBox(width: 8),
+
                     GestureDetector(
                       onTap: () {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Edição em breve.')),
+                          const SnackBar(
+                            content: Text('Edição em breve.'),
+                          ),
                         );
                       },
                       child: const Icon(
@@ -366,9 +449,15 @@ class _TarefasPageState extends State<TarefasPage> {
                         size: 17,
                       ),
                     ),
+
                     const SizedBox(width: 6),
+
                     GestureDetector(
-                      onTap: () => setState(() => atividadesGlobais.remove(a)),
+                      onTap: () {
+                        setState(() {
+                          atividadesGlobais.remove(a);
+                        });
+                      },
                       child: const Icon(
                         Icons.delete_outline,
                         color: Color(0xFF00A5A5),
@@ -383,10 +472,13 @@ class _TarefasPageState extends State<TarefasPage> {
                 Text(
                   a['titulo'],
                   style: TextStyle(
-                    color: concluida ? const Color(0xFF9EADAC) : Colors.white,
+                    color: concluida
+                        ? const Color(0xFF9EADAC)
+                        : Colors.white,
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
-                    decoration: concluida ? TextDecoration.lineThrough : null,
+                    decoration:
+                    concluida ? TextDecoration.lineThrough : null,
                     decorationColor: const Color(0xFF9EADAC),
                   ),
                 ),
@@ -409,14 +501,21 @@ class _TarefasPageState extends State<TarefasPage> {
 
           // CÍRCULO DE CONCLUÍDO
           GestureDetector(
-            onTap: () => setState(() => a['concluida'] = !concluida),
+            onTap: () {
+              setState(() {
+                a['concluida'] = !concluida;
+              });
+            },
             child: Container(
               width: 26,
               height: 26,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: concluida ? azul : Colors.transparent,
-                border: Border.all(color: azul, width: 1.5),
+                border: Border.all(
+                  color: azul,
+                  width: 1.5,
+                ),
               ),
               child: concluida
                   ? const Icon(
@@ -432,16 +531,23 @@ class _TarefasPageState extends State<TarefasPage> {
     );
   }
 
+  // ETIQUETAS
   Widget _etiqueta(String tag) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 8,
+        vertical: 2,
+      ),
       decoration: BoxDecoration(
         color: corDaEtiqueta(tag),
         borderRadius: BorderRadius.circular(10),
       ),
       child: Text(
         tag,
-        style: const TextStyle(color: Colors.white, fontSize: 8),
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 8,
+        ),
       ),
     );
   }

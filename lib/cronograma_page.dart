@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'home_page.dart';
 import 'widgets.dart';
 import 'dados.dart';
+import 'materias_page.dart';
 import 'nova_atividade_page.dart';
 import 'tarefas_page.dart';
 
@@ -63,7 +65,9 @@ class _CronogramaPageState extends State<CronogramaPage> {
   Future<void> _adicionarAtividade() async {
     final nova = await Navigator.push<Map<String, dynamic>>(
       context,
-      MaterialPageRoute(builder: (_) => const NovaAtividadePage()),
+      MaterialPageRoute(
+        builder: (_) => const NovaAtividadePage(),
+      ),
     );
 
     if (nova != null) {
@@ -82,7 +86,9 @@ class _CronogramaPageState extends State<CronogramaPage> {
       setState(() {
         final lista = cronogramaGlobal[nova['dia']!]!;
         lista.add(nova);
-        lista.sort((a, b) => a['horario']!.compareTo(b['horario']!));
+        lista.sort(
+              (a, b) => a['horario']!.compareTo(b['horario']!),
+        );
       });
     }
   }
@@ -96,9 +102,17 @@ class _CronogramaPageState extends State<CronogramaPage> {
           children: [
             // CABEÇALHO
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 18,
+                vertical: 12,
+              ),
               decoration: const BoxDecoration(
-                border: Border(bottom: BorderSide(color: borda, width: 0.5)),
+                border: Border(
+                  bottom: BorderSide(
+                    color: borda,
+                    width: 0.5,
+                  ),
+                ),
               ),
               child: Row(
                 children: [
@@ -139,7 +153,10 @@ class _CronogramaPageState extends State<CronogramaPage> {
                     ),
                   ),
                   const Spacer(),
-                  const Icon(Icons.notifications, color: azul),
+                  const Icon(
+                    Icons.notifications,
+                    color: azul,
+                  ),
                 ],
               ),
             ),
@@ -162,13 +179,33 @@ class _CronogramaPageState extends State<CronogramaPage> {
         selectedIndex: 2,
         onTap: (index) {
           if (index == 0) {
-            Navigator.pop(context);
+            // HOME
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const HomePage(),
+              ),
+                  (route) => false,
+            );
           } else if (index == 1) {
+            // TAREFAS
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (_) => const TarefasPage()),
+              MaterialPageRoute(
+                builder: (_) => const TarefasPage(),
+              ),
+            );
+          } else if (index == 3) {
+            // MATÉRIAS
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const MateriasPage(),
+              ),
             );
           }
+
+          // O índice 2 já corresponde ao cronograma.
         },
         onAdd: _adicionarAtividade,
       ),
@@ -186,7 +223,9 @@ class _CronogramaPageState extends State<CronogramaPage> {
       decoration: BoxDecoration(
         color: const Color(0xFF022A29),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFF0A5755)),
+        border: Border.all(
+          color: const Color(0xFF0A5755),
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -215,7 +254,11 @@ class _CronogramaPageState extends State<CronogramaPage> {
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(color: borda),
                   ),
-                  child: const Icon(Icons.add, color: Colors.white, size: 20),
+                  child: const Icon(
+                    Icons.add,
+                    color: Colors.white,
+                    size: 20,
+                  ),
                 ),
               ),
             ],
@@ -228,7 +271,10 @@ class _CronogramaPageState extends State<CronogramaPage> {
               padding: EdgeInsets.only(left: 4, bottom: 4),
               child: Text(
                 'Nenhuma sessão planejada.',
-                style: TextStyle(color: Color(0xFF9EADAC), fontSize: 11),
+                style: TextStyle(
+                  color: Color(0xFF9EADAC),
+                  fontSize: 11,
+                ),
               ),
             ),
 
@@ -244,9 +290,10 @@ class _CronogramaPageState extends State<CronogramaPage> {
 
   // CARD DE UMA SESSÃO DE ESTUDO
   Widget _cardSessao(String dia, Map<String, String> s) {
-    final subtitulo = [s['materia'] ?? '', s['duracao'] ?? '']
-        .where((t) => t.isNotEmpty)
-        .join(' ');
+    final subtitulo = [
+      s['materia'] ?? '',
+      s['duracao'] ?? '',
+    ].where((t) => t.isNotEmpty).join(' ');
 
     return Container(
       width: double.infinity,
@@ -293,7 +340,11 @@ class _CronogramaPageState extends State<CronogramaPage> {
             ),
           ),
           GestureDetector(
-            onTap: () => setState(() => cronogramaGlobal[dia]!.remove(s)),
+            onTap: () {
+              setState(() {
+                cronogramaGlobal[dia]!.remove(s);
+              });
+            },
             child: const Icon(
               Icons.delete_outline,
               color: Color(0xFF00A5A5),
@@ -310,7 +361,9 @@ class _CronogramaPageState extends State<CronogramaPage> {
 class _NovaSessaoDialog extends StatefulWidget {
   final String diaInicial;
 
-  const _NovaSessaoDialog({required this.diaInicial});
+  const _NovaSessaoDialog({
+    required this.diaInicial,
+  });
 
   @override
   State<_NovaSessaoDialog> createState() => _NovaSessaoDialogState();
@@ -321,7 +374,7 @@ class _NovaSessaoDialogState extends State<_NovaSessaoDialog> {
   final _duracaoController = TextEditingController();
   final _assuntosController = TextEditingController();
 
-  // MATÉRIAS DISPONÍVEIS NA LISTA (pode acrescentar as suas)
+  // MATÉRIAS DISPONÍVEIS NA LISTA
   static const List<String> materias = [
     'Matemática',
     'Português',
@@ -356,13 +409,17 @@ class _NovaSessaoDialogState extends State<_NovaSessaoDialog> {
 
   String _dois(int n) => n.toString().padLeft(2, '0');
 
-  String _fmt(TimeOfDay t) => '${_dois(t.hour)}:${_dois(t.minute)}';
+  String _fmt(TimeOfDay t) {
+    return '${_dois(t.hour)}:${_dois(t.minute)}';
+  }
 
   String _duracaoTexto(int minutos) {
     final h = minutos ~/ 60;
     final m = minutos % 60;
+
     if (h == 0) return '${m}min de duração';
     if (m == 0) return '${h}hr de duração';
+
     return '${h}h${_dois(m)}min de duração';
   }
 
@@ -372,12 +429,17 @@ class _NovaSessaoDialogState extends State<_NovaSessaoDialog> {
       initialTime: inicio ?? TimeOfDay.now(),
       builder: (context, child) => Theme(
         data: ThemeData.dark().copyWith(
-          colorScheme: const ColorScheme.dark(primary: azul),
+          colorScheme: const ColorScheme.dark(
+            primary: azul,
+          ),
         ),
         child: child!,
       ),
     );
-    if (h != null) setState(() => inicio = h);
+
+    if (h != null) {
+      setState(() => inicio = h);
+    }
   }
 
   void _concluir() {
@@ -388,10 +450,12 @@ class _NovaSessaoDialogState extends State<_NovaSessaoDialog> {
       setState(() => erro = 'Digite um título.');
       return;
     }
+
     if (inicio == null) {
       setState(() => erro = 'Escolha o horário de início.');
       return;
     }
+
     if (duracao == null || duracao <= 0) {
       setState(() => erro = 'Digite a duração em minutos.');
       return;
@@ -427,7 +491,10 @@ class _NovaSessaoDialogState extends State<_NovaSessaoDialog> {
   }
 
   // CAIXA ARREDONDADA PARA LISTAS E HORÁRIO
-  Widget _caixa({required Widget child, VoidCallback? onTap}) {
+  Widget _caixa({
+    required Widget child,
+    VoidCallback? onTap,
+  }) {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(14),
@@ -448,11 +515,17 @@ class _NovaSessaoDialogState extends State<_NovaSessaoDialog> {
   InputDecoration _decoracao(String hint) {
     return InputDecoration(
       hintText: hint,
-      hintStyle: const TextStyle(color: Color(0xFF9EADAC), fontSize: 12),
+      hintStyle: const TextStyle(
+        color: Color(0xFF9EADAC),
+        fontSize: 12,
+      ),
       filled: true,
       fillColor: const Color(0xFF001413),
       isDense: true,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+      contentPadding: const EdgeInsets.symmetric(
+        horizontal: 12,
+        vertical: 14,
+      ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
         borderSide: const BorderSide(color: borda),
@@ -478,12 +551,26 @@ class _NovaSessaoDialogState extends State<_NovaSessaoDialog> {
           dropdownColor: fundoCard,
           hint: Text(
             dica,
-            style: const TextStyle(color: Color(0xFF9EADAC), fontSize: 12),
+            style: const TextStyle(
+              color: Color(0xFF9EADAC),
+              fontSize: 12,
+            ),
           ),
-          icon: const Icon(Icons.keyboard_arrow_down, color: azul),
-          style: const TextStyle(color: Colors.white, fontSize: 12),
+          icon: const Icon(
+            Icons.keyboard_arrow_down,
+            color: azul,
+          ),
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 12,
+          ),
           items: itens
-              .map((i) => DropdownMenuItem(value: i, child: Text(i)))
+              .map(
+                (i) => DropdownMenuItem(
+              value: i,
+              child: Text(i),
+            ),
+          )
               .toList(),
           onChanged: onChanged,
         ),
@@ -493,17 +580,25 @@ class _NovaSessaoDialogState extends State<_NovaSessaoDialog> {
 
   @override
   Widget build(BuildContext context) {
-    const estiloTexto = TextStyle(color: Colors.white, fontSize: 12);
+    const estiloTexto = TextStyle(
+      color: Colors.white,
+      fontSize: 12,
+    );
 
     return Dialog(
       backgroundColor: Colors.transparent,
-      insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+      insetPadding: const EdgeInsets.symmetric(
+        horizontal: 16,
+        vertical: 24,
+      ),
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: const Color(0xFF022A29),
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: const Color(0xFF0A5755)),
+          border: Border.all(
+            color: const Color(0xFF0A5755),
+          ),
         ),
         child: SingleChildScrollView(
           child: Column(
@@ -521,7 +616,10 @@ class _NovaSessaoDialogState extends State<_NovaSessaoDialog> {
               const SizedBox(height: 4),
               const Text(
                 'faça seu cronograma de estudos!',
-                style: TextStyle(color: azul, fontSize: 10),
+                style: TextStyle(
+                  color: azul,
+                  fontSize: 10,
+                ),
               ),
 
               const SizedBox(height: 18),
@@ -550,7 +648,9 @@ class _NovaSessaoDialogState extends State<_NovaSessaoDialog> {
                           valor: materia,
                           dica: 'Nome da matéria',
                           itens: materias,
-                          onChanged: (v) => setState(() => materia = v),
+                          onChanged: (v) {
+                            setState(() => materia = v);
+                          },
                         ),
                       ],
                     ),
@@ -566,7 +666,9 @@ class _NovaSessaoDialogState extends State<_NovaSessaoDialog> {
                           dica: 'Escolha o dia',
                           itens: diasDaSemana,
                           onChanged: (v) {
-                            if (v != null) setState(() => dia = v);
+                            if (v != null) {
+                              setState(() => dia = v);
+                            }
                           },
                         ),
                       ],

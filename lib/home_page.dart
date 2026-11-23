@@ -3,6 +3,7 @@ import 'widgets.dart';
 import 'nova_atividade_page.dart';
 import 'dados.dart';
 import 'tarefas_page.dart';
+import 'materias_page.dart';
 import 'cronograma_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -15,7 +16,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int paginaSelecionada = 0;
 
-  // LISTA DE ATIVIDADES (compartilhada com a tela de tarefas)
+  // LISTA DE ATIVIDADES COMPARTILHADA COM A TELA DE TAREFAS
   List<Map<String, dynamic>> get atividades => atividadesGlobais;
 
   // LISTA DE EXERCÍCIOS
@@ -29,6 +30,37 @@ class _HomePageState extends State<HomePage> {
       'horario': 'Das 19:00 até as 20:00',
     },
   ];
+
+  // QUANTIDADE DE ATIVIDADES PENDENTES
+  int get quantidadePendentes {
+    return atividades.where((atividade) {
+      return atividade['concluida'] != true;
+    }).length;
+  }
+
+  // QUANTIDADE DE PROVAS PARA HOJE E OS PRÓXIMOS 13 DIAS
+  int get quantidadeProvas {
+    final hoje = DateTime.now();
+    final inicio = DateTime(hoje.year, hoje.month, hoje.day);
+    final limite = inicio.add(const Duration(days: 13));
+
+    return atividades.where((atividade) {
+      final etiquetas =
+      List<String>.from(atividade['etiquetas'] ?? []);
+      final data = atividade['data'] as DateTime?;
+
+      return etiquetas.contains('Prova') &&
+          atividade['concluida'] != true &&
+          data != null &&
+          !data.isBefore(inicio) &&
+          data.isBefore(limite.add(const Duration(days: 1)));
+    }).length;
+  }
+
+  // QUANTIDADE DE ESTUDOS CADASTRADOS NA LISTA DE EXERCÍCIOS
+  int get quantidadeEstudos {
+    return exercicios.length;
+  }
 
   // DATA ATUAL
   String dataAtual() {
@@ -77,12 +109,121 @@ class _HomePageState extends State<HomePage> {
   Future<void> adicionar() async {
     final nova = await Navigator.push<Map<String, dynamic>>(
       context,
-      MaterialPageRoute(builder: (_) => const NovaAtividadePage()),
+      MaterialPageRoute(
+        builder: (_) => const NovaAtividadePage(),
+      ),
     );
+
+    if (!mounted) return;
 
     if (nova != null) {
       setState(() {
         atividades.insert(0, nova);
+      });
+    }
+  }
+
+  // EDITAR ATIVIDADE
+  Future<void> _editarAtividade(int index) async {
+    final atividade = atividades[index];
+
+    final alterada = await Navigator.push<Map<String, dynamic>>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => NovaAtividadePage(
+          atividadeInicial: Map<String, dynamic>.from(atividade),
+        ),
+      ),
+    );
+
+    if (!mounted) return;
+
+    if (alterada != null) {
+      setState(() {
+        atividades[index] = alterada;
+      });
+    }
+  }
+
+  // EDITAR EXERCÍCIO
+  Future<void> _editarExercicio(int index) async {
+    final exercicio = exercicios[index];
+
+    final tituloController = TextEditingController(
+      text: exercicio['titulo'] ?? '',
+    );
+
+    final horarioController = TextEditingController(
+      text: exercicio['horario'] ?? '',
+    );
+
+    final resultado = await showDialog<Map<String, String>>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          backgroundColor: fundoCard,
+          title: const Text(
+            'Editar exercício',
+            style: TextStyle(color: Colors.white),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: tituloController,
+                style: const TextStyle(color: Colors.white),
+                cursorColor: azul,
+                decoration: const InputDecoration(
+                  labelText: 'Título',
+                  labelStyle: TextStyle(color: azul),
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: horarioController,
+                style: const TextStyle(color: Colors.white),
+                cursorColor: azul,
+                decoration: const InputDecoration(
+                  labelText: 'Horário',
+                  labelStyle: TextStyle(color: azul),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: const Text(
+                'Cancelar',
+                style: TextStyle(color: Colors.white70),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(dialogContext, {
+                  'titulo': tituloController.text.trim(),
+                  'horario': horarioController.text.trim(),
+                });
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: azul,
+                foregroundColor: const Color(0xFF001817),
+              ),
+              child: const Text('Salvar'),
+            ),
+          ],
+        );
+      },
+    );
+
+    tituloController.dispose();
+    horarioController.dispose();
+
+    if (!mounted) return;
+
+    if (resultado != null && resultado['titulo']!.isNotEmpty) {
+      setState(() {
+        exercicios[index] = resultado;
       });
     }
   }
@@ -93,6 +234,9 @@ class _HomePageState extends State<HomePage> {
       context,
       MaterialPageRoute(builder: (_) => tela),
     );
+
+    if (!mounted) return;
+
     setState(() {});
   }
 
@@ -211,27 +355,29 @@ class _HomePageState extends State<HomePage> {
 
                     const SizedBox(height: 14),
 
-                    // CARDS DE INFORMAÇÕES
-                    const InfoCard(
+                    // CARD DE ATIVIDADES PENDENTES
+                    InfoCard(
                       titulo: 'Pendentes:',
-                      numero: '5',
+                      numero: '$quantidadePendentes',
                       descricao: 'Tarefas, provas e trabalhos.',
                     ),
 
                     const SizedBox(height: 9),
 
-                    const InfoCard(
+                    // CARD DE PROVAS
+                    InfoCard(
                       titulo: 'Provas:',
-                      numero: '2',
-                      descricao: 'Nos próximos 13 dias.',
+                      numero: '$quantidadeProvas',
+                      descricao: 'Hoje e nos próximos 13 dias.',
                     ),
 
                     const SizedBox(height: 9),
 
-                    const InfoCard(
+                    // CARD DE ESTUDOS SEMANAIS
+                    InfoCard(
                       titulo: 'Estudos semanais:',
-                      numero: '9h45',
-                      descricao: '5 sessões planejadas.',
+                      numero: '$quantidadeEstudos',
+                      descricao: 'Sessões cadastradas.',
                     ),
 
                     const SizedBox(height: 14),
@@ -251,7 +397,8 @@ class _HomePageState extends State<HomePage> {
                         const Spacer(),
 
                         GestureDetector(
-                          onTap: () => _abrirTela(const TarefasPage()),
+                          onTap: () =>
+                              _abrirTela(const TarefasPage()),
                           child: const Text(
                             'Ver todas →',
                             style: TextStyle(
@@ -266,7 +413,7 @@ class _HomePageState extends State<HomePage> {
 
                     const SizedBox(height: 10),
 
-                    // LISTA DE ATIVIDADES EXCLUÍVEIS
+                    // LISTA DE ATIVIDADES
                     ...List.generate(atividades.length, (index) {
                       final atividade = atividades[index];
 
@@ -274,10 +421,11 @@ class _HomePageState extends State<HomePage> {
                         padding: const EdgeInsets.only(bottom: 8),
                         child: _atividadeCard(
                           etiquetas: List<String>.from(
-                            atividade['etiquetas'],
+                            atividade['etiquetas'] ?? [],
                           ),
-                          titulo: atividade['titulo'],
-                          horario: atividade['horario'],
+                          titulo: atividade['titulo'] ?? '',
+                          horario: atividade['horario'] ?? '',
+                          onEditar: () => _editarAtividade(index),
                           onExcluir: () {
                             setState(() {
                               atividades.removeAt(index);
@@ -304,7 +452,8 @@ class _HomePageState extends State<HomePage> {
                         const Spacer(),
 
                         GestureDetector(
-                          onTap: () => _abrirTela(const CronogramaPage()),
+                          onTap: () =>
+                              _abrirTela(const CronogramaPage()),
                           child: const Text(
                             'Cronograma →',
                             style: TextStyle(
@@ -319,7 +468,7 @@ class _HomePageState extends State<HomePage> {
 
                     const SizedBox(height: 10),
 
-                    // LISTA DE EXERCÍCIOS EXCLUÍVEIS
+                    // LISTA DE EXERCÍCIOS
                     ...List.generate(exercicios.length, (index) {
                       final exercicio = exercicios[index];
 
@@ -328,6 +477,7 @@ class _HomePageState extends State<HomePage> {
                         child: _atividadeCard(
                           titulo: exercicio['titulo']!,
                           horario: exercicio['horario']!,
+                          onEditar: () => _editarExercicio(index),
                           onExcluir: () {
                             setState(() {
                               exercicios.removeAt(index);
@@ -348,10 +498,17 @@ class _HomePageState extends State<HomePage> {
       bottomNavigationBar: BottomMenu(
         selectedIndex: paginaSelecionada,
         onTap: (index) {
+          debugPrint('Ícone pressionado: $index');
+
           if (index == 1) {
+            // ÍCONE DE TAREFAS
             _abrirTela(const TarefasPage());
           } else if (index == 2) {
+            // ÍCONE DE CALENDÁRIO
             _abrirTela(const CronogramaPage());
+          } else if (index == 3) {
+            // ÍCONE DE MATÉRIAS
+            _abrirTela(const MateriasPage());
           } else {
             setState(() {
               paginaSelecionada = index;
@@ -368,6 +525,7 @@ class _HomePageState extends State<HomePage> {
     List<String> etiquetas = const [],
     required String titulo,
     required String horario,
+    required VoidCallback onEditar,
     required VoidCallback onExcluir,
   }) {
     return Container(
@@ -437,10 +595,16 @@ class _HomePageState extends State<HomePage> {
 
           const SizedBox(width: 5),
 
-          const Icon(
-            Icons.edit_outlined,
-            color: azul,
-            size: 17,
+          // BOTÃO DE EDITAR
+          IconButton(
+            onPressed: onEditar,
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(),
+            icon: const Icon(
+              Icons.edit_outlined,
+              color: azul,
+              size: 17,
+            ),
           ),
 
           const SizedBox(width: 5),
