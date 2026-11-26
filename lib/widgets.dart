@@ -61,7 +61,6 @@ class InfoCard extends StatelessWidget {
   }
 }
 
-// MENU INFERIOR
 class BottomMenu extends StatefulWidget {
   final int selectedIndex;
   final Function(int) onTap;
@@ -103,8 +102,6 @@ class _BottomMenuState extends State<BottomMenu> {
         children: [
           for (int i = 0; i < 2; i++)
             _itemMenu(icones[i], i),
-
-          // BOTÃO DE ADICIONAR COM ANIMAÇÃO
           MouseRegion(
             cursor: SystemMouseCursors.click,
             onEnter: (_) {

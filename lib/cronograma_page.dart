@@ -16,7 +16,6 @@ const List<String> diasDaSemana = [
   'Domingo',
 ];
 
-// FICA FORA DA TELA PARA NÃO PERDER OS DADOS AO SAIR E VOLTAR
 final Map<String, List<Map<String, String>>> cronogramaGlobal = {
   'Segunda': [
     {
@@ -61,7 +60,6 @@ class CronogramaPage extends StatefulWidget {
 }
 
 class _CronogramaPageState extends State<CronogramaPage> {
-  // BOTÃO "+" CENTRAL: NOVA ATIVIDADE
   Future<void> _adicionarAtividade() async {
     final nova = await Navigator.push<Map<String, dynamic>>(
       context,
@@ -75,7 +73,7 @@ class _CronogramaPageState extends State<CronogramaPage> {
     }
   }
 
-  // BOTÃO "+" DE CADA DIA: NOVA SESSÃO DE ESTUDO
+
   Future<void> _adicionarSessao(String dia) async {
     final nova = await showDialog<Map<String, String>>(
       context: context,
@@ -100,7 +98,6 @@ class _CronogramaPageState extends State<CronogramaPage> {
       body: SafeArea(
         child: Column(
           children: [
-            // CABEÇALHO
             Container(
               padding: const EdgeInsets.symmetric(
                 horizontal: 18,
@@ -161,7 +158,6 @@ class _CronogramaPageState extends State<CronogramaPage> {
               ),
             ),
 
-            // DIAS DA SEMANA
             Expanded(
               child: ListView(
                 padding: const EdgeInsets.all(16),
@@ -173,13 +169,11 @@ class _CronogramaPageState extends State<CronogramaPage> {
           ],
         ),
       ),
-
-      // MENU INFERIOR
       bottomNavigationBar: BottomMenu(
         selectedIndex: 2,
         onTap: (index) {
           if (index == 0) {
-            // HOME
+
             Navigator.pushAndRemoveUntil(
               context,
               MaterialPageRoute(
@@ -188,7 +182,6 @@ class _CronogramaPageState extends State<CronogramaPage> {
                   (route) => false,
             );
           } else if (index == 1) {
-            // TAREFAS
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
@@ -196,7 +189,7 @@ class _CronogramaPageState extends State<CronogramaPage> {
               ),
             );
           } else if (index == 3) {
-            // MATÉRIAS
+
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
@@ -205,14 +198,12 @@ class _CronogramaPageState extends State<CronogramaPage> {
             );
           }
 
-          // O índice 2 já corresponde ao cronograma.
         },
         onAdd: _adicionarAtividade,
       ),
     );
   }
 
-  // CARD DE UM DIA
   Widget _cardDia(String dia) {
     final sessoes = cronogramaGlobal[dia]!;
 
@@ -288,7 +279,6 @@ class _CronogramaPageState extends State<CronogramaPage> {
     );
   }
 
-  // CARD DE UMA SESSÃO DE ESTUDO
   Widget _cardSessao(String dia, Map<String, String> s) {
     final subtitulo = [
       s['materia'] ?? '',
@@ -357,7 +347,6 @@ class _CronogramaPageState extends State<CronogramaPage> {
   }
 }
 
-// JANELA PARA CADASTRAR UMA SESSÃO DE ESTUDO
 class _NovaSessaoDialog extends StatefulWidget {
   final String diaInicial;
 
@@ -374,7 +363,7 @@ class _NovaSessaoDialogState extends State<_NovaSessaoDialog> {
   final _duracaoController = TextEditingController();
   final _assuntosController = TextEditingController();
 
-  // MATÉRIAS DISPONÍVEIS NA LISTA
+
   static const List<String> materias = [
     'Matemática',
     'Português',
@@ -461,7 +450,6 @@ class _NovaSessaoDialogState extends State<_NovaSessaoDialog> {
       return;
     }
 
-    // HORÁRIO FINAL = INÍCIO + DURAÇÃO
     final inicioMin = inicio!.hour * 60 + inicio!.minute;
     final fimMin = (inicioMin + duracao) % (24 * 60);
     final fim = '${_dois(fimMin ~/ 60)}:${_dois(fimMin % 60)}';
@@ -490,7 +478,6 @@ class _NovaSessaoDialogState extends State<_NovaSessaoDialog> {
     );
   }
 
-  // CAIXA ARREDONDADA PARA LISTAS E HORÁRIO
   Widget _caixa({
     required Widget child,
     VoidCallback? onTap,
@@ -624,7 +611,7 @@ class _NovaSessaoDialogState extends State<_NovaSessaoDialog> {
 
               const SizedBox(height: 18),
 
-              // TÍTULO
+
               _rotulo('Título:'),
               TextField(
                 controller: _tituloController,
@@ -635,7 +622,7 @@ class _NovaSessaoDialogState extends State<_NovaSessaoDialog> {
 
               const SizedBox(height: 14),
 
-              // MATÉRIA + DIA DA SEMANA
+
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -679,7 +666,6 @@ class _NovaSessaoDialogState extends State<_NovaSessaoDialog> {
 
               const SizedBox(height: 14),
 
-              // INÍCIO + DURAÇÃO
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -727,7 +713,6 @@ class _NovaSessaoDialogState extends State<_NovaSessaoDialog> {
 
               const SizedBox(height: 14),
 
-              // ASSUNTOS
               _rotulo('Assuntos:'),
               TextField(
                 controller: _assuntosController,
@@ -750,7 +735,6 @@ class _NovaSessaoDialogState extends State<_NovaSessaoDialog> {
 
               const SizedBox(height: 18),
 
-              // BOTÕES
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [

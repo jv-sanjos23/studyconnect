@@ -84,7 +84,7 @@ class _NovaAtividadePageState extends State<NovaAtividadePage> {
     super.dispose();
   }
 
-  // SELETOR DE DATA
+
   Future<void> _escolherData() async {
     final agora = DateTime.now();
 

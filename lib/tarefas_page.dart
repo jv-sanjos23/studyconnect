@@ -25,7 +25,6 @@ class _TarefasPageState extends State<TarefasPage> {
     super.dispose();
   }
 
-  // ABRE A TELA DE NOVA ATIVIDADE
   Future<void> _adicionar() async {
     final nova = await Navigator.push<Map<String, dynamic>>(
       context,
@@ -41,7 +40,6 @@ class _TarefasPageState extends State<TarefasPage> {
     }
   }
 
-  // ABRE O CRONOGRAMA
   void _abrirCronograma() {
     Navigator.push(
       context,
@@ -50,8 +48,6 @@ class _TarefasPageState extends State<TarefasPage> {
       ),
     );
   }
-
-  // FILTRA AS ATIVIDADES E ORDENA POR DATA
   List<Map<String, dynamic>> _filtradas() {
     final lista = atividadesGlobais.where((a) {
       final concluida = a['concluida'] == true;
@@ -100,7 +96,6 @@ class _TarefasPageState extends State<TarefasPage> {
       body: SafeArea(
         child: Column(
           children: [
-            // CABEÇALHO
             Container(
               padding: const EdgeInsets.symmetric(
                 horizontal: 18,
@@ -162,14 +157,12 @@ class _TarefasPageState extends State<TarefasPage> {
               ),
             ),
 
-            // CONTEÚDO
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // TÍTULO + BOTÃO NOVA
                     Row(
                       children: [
                         const Expanded(
@@ -226,7 +219,6 @@ class _TarefasPageState extends State<TarefasPage> {
 
                     const SizedBox(height: 14),
 
-                    // BUSCA + FILTRO
                     Row(
                       children: [
                         Expanded(
@@ -317,7 +309,6 @@ class _TarefasPageState extends State<TarefasPage> {
 
                     const SizedBox(height: 16),
 
-                    // LISTA AGRUPADA
                     if (lista.isEmpty)
                       const Padding(
                         padding: EdgeInsets.only(top: 30),
@@ -365,7 +356,6 @@ class _TarefasPageState extends State<TarefasPage> {
         ),
       ),
 
-      // MENU INFERIOR
       bottomNavigationBar: BottomMenu(
         selectedIndex: 1,
         onTap: (index) {
@@ -379,10 +369,9 @@ class _TarefasPageState extends State<TarefasPage> {
                   (route) => false,
             );
           } else if (index == 2) {
-            // CALENDÁRIO: abre o cronograma
             _abrirCronograma();
           } else if (index == 3) {
-            // MATÉRIAS
+
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
@@ -391,14 +380,12 @@ class _TarefasPageState extends State<TarefasPage> {
             );
           }
 
-          // O índice 1 já é a tela de tarefas.
         },
         onAdd: _adicionar,
       ),
     );
   }
 
-  // CARD DA ATIVIDADE
   Widget _card(Map<String, dynamic> a) {
     final concluida = a['concluida'] == true;
     final etiquetas = List<String>.from(a['etiquetas']);
@@ -499,7 +486,6 @@ class _TarefasPageState extends State<TarefasPage> {
 
           const SizedBox(width: 10),
 
-          // CÍRCULO DE CONCLUÍDO
           GestureDetector(
             onTap: () {
               setState(() {
@@ -531,7 +517,6 @@ class _TarefasPageState extends State<TarefasPage> {
     );
   }
 
-  // ETIQUETAS
   Widget _etiqueta(String tag) {
     return Container(
       padding: const EdgeInsets.symmetric(

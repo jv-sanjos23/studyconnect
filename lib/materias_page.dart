@@ -17,29 +17,31 @@ class _MateriasPageState extends State<MateriasPage> {
       'nome': 'Matemática',
       'cor': const Color(0xFFFFFF00),
       'topicos': ['Tópico 1', 'Tópico 2', 'Tópico 3'],
+      'topicosConcluidos': <String>{},
     },
     {
       'nome': 'Português',
       'cor': const Color(0xFFFF3B30),
       'topicos': ['Tópico 1', 'Tópico 2', 'Tópico 3'],
+      'topicosConcluidos': <String>{},
     },
     {
       'nome': 'Biologia',
       'cor': const Color(0xFF00E676),
       'topicos': ['Tópico 1', 'Tópico 2', 'Tópico 3'],
+      'topicosConcluidos': <String>{},
     },
   ];
 
-  // ADICIONAR MATÉRIA
   void _adicionarMateria() {
     final controller = TextEditingController();
 
     final List<Color> cores = [
-      const Color(0xFF00E5EF), // Ciano
-      const Color(0xFF00E676), // Verde
-      const Color(0xFF7C3CFF), // Roxo
-      const Color(0xFFFF453A), // Vermelho
-      const Color(0xFFFFD600), // Amarelo
+      const Color(0xFF00E5EF),
+      const Color(0xFF00E676),
+      const Color(0xFF7C3CFF),
+      const Color(0xFFFF453A),
+      const Color(0xFFFFD600),
     ];
 
     Color corSelecionada = cores.first;
@@ -70,9 +72,7 @@ class _MateriasPageState extends State<MateriasPage> {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-
                     const SizedBox(height: 3),
-
                     const Text(
                       'Dê um nome e adicione uma cor para identificar melhor.',
                       style: TextStyle(
@@ -80,9 +80,7 @@ class _MateriasPageState extends State<MateriasPage> {
                         fontSize: 7,
                       ),
                     ),
-
                     const SizedBox(height: 17),
-
                     const Text(
                       'Nome da matéria:',
                       style: TextStyle(
@@ -91,9 +89,7 @@ class _MateriasPageState extends State<MateriasPage> {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-
                     const SizedBox(height: 5),
-
                     TextField(
                       controller: controller,
                       autofocus: true,
@@ -123,9 +119,7 @@ class _MateriasPageState extends State<MateriasPage> {
                         ),
                       ),
                     ),
-
                     const SizedBox(height: 10),
-
                     const Text(
                       'Cor:',
                       style: TextStyle(
@@ -134,9 +128,7 @@ class _MateriasPageState extends State<MateriasPage> {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-
                     const SizedBox(height: 7),
-
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: cores.map((cor) {
@@ -172,9 +164,7 @@ class _MateriasPageState extends State<MateriasPage> {
                         );
                       }).toList(),
                     ),
-
                     const SizedBox(height: 15),
-
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
@@ -197,9 +187,7 @@ class _MateriasPageState extends State<MateriasPage> {
                             style: TextStyle(fontSize: 10),
                           ),
                         ),
-
                         const SizedBox(width: 6),
-
                         TextButton(
                           onPressed: () {
                             final nome = controller.text.trim();
@@ -207,9 +195,7 @@ class _MateriasPageState extends State<MateriasPage> {
                             if (nome.isEmpty) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
-                                  content: Text(
-                                    'Digite o nome da matéria.',
-                                  ),
+                                  content: Text('Digite o nome da matéria.'),
                                 ),
                               );
                               return;
@@ -220,6 +206,7 @@ class _MateriasPageState extends State<MateriasPage> {
                                 'nome': nome,
                                 'cor': corSelecionada,
                                 'topicos': <String>[],
+                                'topicosConcluidos': <String>{},
                               });
                             });
 
@@ -252,7 +239,7 @@ class _MateriasPageState extends State<MateriasPage> {
           },
         );
       },
-    );
+    ).then((_) => controller.dispose());
   }
 
   // ADICIONAR TÓPICO
@@ -311,7 +298,21 @@ class _MateriasPageState extends State<MateriasPage> {
           ],
         );
       },
-    );
+    ).then((_) => controller.dispose());
+  }
+
+  // MARCAR OU DESMARCAR TÓPICO COMO CONCLUÍDO
+  void _alternarTopico(int indiceMateria, String topico) {
+    setState(() {
+      final Set<String> concluidos =
+      materias[indiceMateria]['topicosConcluidos'];
+
+      if (concluidos.contains(topico)) {
+        concluidos.remove(topico);
+      } else {
+        concluidos.add(topico);
+      }
+    });
   }
 
   // EXCLUIR MATÉRIA
@@ -324,7 +325,11 @@ class _MateriasPageState extends State<MateriasPage> {
   // EXCLUIR TÓPICO
   void _excluirTopico(int indiceMateria, int indiceTopico) {
     setState(() {
+      final String topico =
+      materias[indiceMateria]['topicos'][indiceTopico];
+
       materias[indiceMateria]['topicos'].removeAt(indiceTopico);
+      materias[indiceMateria]['topicosConcluidos'].remove(topico);
     });
   }
 
@@ -332,7 +337,6 @@ class _MateriasPageState extends State<MateriasPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF001817),
-
       body: SafeArea(
         child: Column(
           children: [
@@ -357,9 +361,7 @@ class _MateriasPageState extends State<MateriasPage> {
                     color: azul,
                     size: 23,
                   ),
-
                   const SizedBox(width: 8),
-
                   const Text.rich(
                     TextSpan(
                       children: [
@@ -380,9 +382,7 @@ class _MateriasPageState extends State<MateriasPage> {
                       ],
                     ),
                   ),
-
                   const Spacer(),
-
                   IconButton(
                     onPressed: () {},
                     icon: const Icon(
@@ -422,9 +422,7 @@ class _MateriasPageState extends State<MateriasPage> {
                       ],
                     ),
                   ),
-
                   const SizedBox(width: 12),
-
                   SizedBox(
                     width: 82,
                     height: 30,
@@ -460,6 +458,8 @@ class _MateriasPageState extends State<MateriasPage> {
                   final materia = materias[index];
                   final List<String> topicos =
                   List<String>.from(materia['topicos']);
+                  final Set<String> concluidos =
+                  materia['topicosConcluidos'];
                   final Color cor = materia['cor'] as Color;
 
                   return Container(
@@ -489,7 +489,6 @@ class _MateriasPageState extends State<MateriasPage> {
                                 ),
                               ),
                             ),
-
                             GestureDetector(
                               onTap: () => _excluirMateria(index),
                               child: const Icon(
@@ -502,7 +501,7 @@ class _MateriasPageState extends State<MateriasPage> {
                         ),
 
                         Text(
-                          '${topicos.length} tópicos.',
+                          '${concluidos.length} de ${topicos.length} tópicos concluídos.',
                           style: const TextStyle(
                             color: Colors.white54,
                             fontSize: 8,
@@ -513,28 +512,47 @@ class _MateriasPageState extends State<MateriasPage> {
 
                         // TÓPICOS DA MATÉRIA
                         ...List.generate(topicos.length, (topicoIndex) {
+                          final String topico = topicos[topicoIndex];
+                          final bool concluido = concluidos.contains(topico);
+
                           return Padding(
                             padding: const EdgeInsets.only(bottom: 3),
                             child: Row(
                               children: [
-                                const Icon(
-                                  Icons.radio_button_unchecked,
-                                  color: azul,
-                                  size: 12,
+                                SizedBox(
+                                  width: 24,
+                                  height: 24,
+                                  child: Checkbox(
+                                    value: concluido,
+                                    onChanged: (_) {
+                                      _alternarTopico(index, topico);
+                                    },
+                                    activeColor: azul,
+                                    checkColor: const Color(0xFF001817),
+                                    side: const BorderSide(
+                                      color: azul,
+                                      width: 1.2,
+                                    ),
+                                    visualDensity: VisualDensity.compact,
+                                    materialTapTargetSize:
+                                    MaterialTapTargetSize.shrinkWrap,
+                                  ),
                                 ),
-
                                 const SizedBox(width: 6),
-
                                 Expanded(
                                   child: Text(
-                                    topicos[topicoIndex],
-                                    style: const TextStyle(
-                                      color: Colors.white70,
+                                    topico,
+                                    style: TextStyle(
+                                      color: concluido
+                                          ? Colors.white38
+                                          : Colors.white70,
                                       fontSize: 9,
+                                      decoration: concluido
+                                          ? TextDecoration.lineThrough
+                                          : TextDecoration.none,
                                     ),
                                   ),
                                 ),
-
                                 GestureDetector(
                                   onTap: () => _excluirTopico(
                                     index,
@@ -582,9 +600,7 @@ class _MateriasPageState extends State<MateriasPage> {
                                 ),
                               ),
                             ),
-
                             const SizedBox(width: 6),
-
                             SizedBox(
                               width: 28,
                               height: 25,
@@ -616,12 +632,10 @@ class _MateriasPageState extends State<MateriasPage> {
         ),
       ),
 
-      // MENU INFERIOR IGUAL AO DAS OUTRAS TELAS
       bottomNavigationBar: BottomMenu(
         selectedIndex: 3,
         onTap: (index) {
           if (index == 0) {
-            // HOME
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
@@ -629,7 +643,6 @@ class _MateriasPageState extends State<MateriasPage> {
               ),
             );
           } else if (index == 1) {
-            // TAREFAS
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
@@ -637,7 +650,6 @@ class _MateriasPageState extends State<MateriasPage> {
               ),
             );
           } else if (index == 2) {
-            // CRONOGRAMA
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
@@ -645,7 +657,6 @@ class _MateriasPageState extends State<MateriasPage> {
               ),
             );
           }
-          // Índice 3: já está na tela de Matérias.
         },
         onAdd: _adicionarMateria,
       ),

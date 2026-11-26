@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-// LISTA COMPARTILHADA ENTRE A HOME E A TELA DE TAREFAS
+
 final List<Map<String, dynamic>> atividadesGlobais = [
   _nova(['Tarefa', 'Redação'], 'Redação sobre combate ao racismo.', _dia(0, 23, 0)),
   _nova(['Trabalho', 'Biologia', 'Prioridade'], 'Projeto de biologia.', _dia(0, 23, 50)),
@@ -8,7 +8,7 @@ final List<Map<String, dynamic>> atividadesGlobais = [
   _nova(['Prova', 'Redação'], 'Prova de redação', _dia(1, 15, 0)),
 ];
 
-// DATA: hoje + [dias], com hora e minuto
+
 DateTime _dia(int dias, int hora, int minuto) {
   final d = DateTime.now().add(Duration(days: dias));
   return DateTime(d.year, d.month, d.day, hora, minuto);
@@ -34,7 +34,6 @@ Map<String, dynamic> _nova(
 bool mesmoDia(DateTime a, DateTime b) =>
     a.year == b.year && a.month == b.month && a.day == b.day;
 
-// "Hoje às 23:00", "Amanhã às 13:00" ou "25/11 às 14:30"
 String formatarHorario(DateTime? data, bool temHora) {
   if (data == null) return '';
 
@@ -58,7 +57,6 @@ String formatarHorario(DateTime? data, bool temHora) {
   return '$dia às $h:$m';
 }
 
-// EM QUAL GRUPO A ATIVIDADE APARECE
 const ordemGrupos = [
   'Atrasadas',
   'Anteriores',
@@ -83,7 +81,6 @@ String grupoDaAtividade(Map<String, dynamic> a) {
   return 'Próximos dias';
 }
 
-// COR DAS ETIQUETAS
 Color corDaEtiqueta(String tag) {
   return switch (tag) {
     'Tarefa' || 'Biologia' => const Color(0xFF226C51),

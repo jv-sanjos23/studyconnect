@@ -16,10 +16,8 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int paginaSelecionada = 0;
 
-  // LISTA DE ATIVIDADES COMPARTILHADA COM A TELA DE TAREFAS
   List<Map<String, dynamic>> get atividades => atividadesGlobais;
 
-  // LISTA DE EXERCÍCIOS
   List<Map<String, String>> exercicios = [
     {
       'titulo': 'Exercício 1',
@@ -31,14 +29,12 @@ class _HomePageState extends State<HomePage> {
     },
   ];
 
-  // QUANTIDADE DE ATIVIDADES PENDENTES
   int get quantidadePendentes {
     return atividades.where((atividade) {
       return atividade['concluida'] != true;
     }).length;
   }
 
-  // QUANTIDADE DE PROVAS PARA HOJE E OS PRÓXIMOS 13 DIAS
   int get quantidadeProvas {
     final hoje = DateTime.now();
     final inicio = DateTime(hoje.year, hoje.month, hoje.day);
@@ -57,12 +53,10 @@ class _HomePageState extends State<HomePage> {
     }).length;
   }
 
-  // QUANTIDADE DE ESTUDOS CADASTRADOS NA LISTA DE EXERCÍCIOS
   int get quantidadeEstudos {
     return exercicios.length;
   }
 
-  // DATA ATUAL
   String dataAtual() {
     DateTime agora = DateTime.now();
 
@@ -95,7 +89,6 @@ class _HomePageState extends State<HomePage> {
         '${agora.day} de ${meses[agora.month - 1]}.';
   }
 
-  // HORÁRIO ATUAL
   String horarioAtual() {
     DateTime agora = DateTime.now();
 
@@ -105,7 +98,6 @@ class _HomePageState extends State<HomePage> {
     return '$hora:$minuto';
   }
 
-  // BOTÃO ADICIONAR
   Future<void> adicionar() async {
     final nova = await Navigator.push<Map<String, dynamic>>(
       context,
@@ -123,7 +115,6 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  // EDITAR ATIVIDADE
   Future<void> _editarAtividade(int index) async {
     final atividade = atividades[index];
 
@@ -145,7 +136,6 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  // EDITAR EXERCÍCIO
   Future<void> _editarExercicio(int index) async {
     final exercicio = exercicios[index];
 
@@ -228,7 +218,6 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  // ABRE OUTRA TELA E ATUALIZA A HOME AO VOLTAR
   Future<void> _abrirTela(Widget tela) async {
     await Navigator.push(
       context,
@@ -248,7 +237,6 @@ class _HomePageState extends State<HomePage> {
       body: SafeArea(
         child: Column(
           children: [
-            // CABEÇALHO
             Container(
               padding: const EdgeInsets.symmetric(
                 horizontal: 18,
@@ -303,7 +291,6 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
 
-            // CONTEÚDO PRINCIPAL
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(16),
@@ -355,7 +342,6 @@ class _HomePageState extends State<HomePage> {
 
                     const SizedBox(height: 14),
 
-                    // CARD DE ATIVIDADES PENDENTES
                     InfoCard(
                       titulo: 'Pendentes:',
                       numero: '$quantidadePendentes',
@@ -364,7 +350,6 @@ class _HomePageState extends State<HomePage> {
 
                     const SizedBox(height: 9),
 
-                    // CARD DE PROVAS
                     InfoCard(
                       titulo: 'Provas:',
                       numero: '$quantidadeProvas',
@@ -373,7 +358,6 @@ class _HomePageState extends State<HomePage> {
 
                     const SizedBox(height: 9),
 
-                    // CARD DE ESTUDOS SEMANAIS
                     InfoCard(
                       titulo: 'Estudos semanais:',
                       numero: '$quantidadeEstudos',
@@ -382,7 +366,6 @@ class _HomePageState extends State<HomePage> {
 
                     const SizedBox(height: 14),
 
-                    // PRÓXIMAS ATIVIDADES
                     Row(
                       children: [
                         const Text(
@@ -413,7 +396,6 @@ class _HomePageState extends State<HomePage> {
 
                     const SizedBox(height: 10),
 
-                    // LISTA DE ATIVIDADES
                     ...List.generate(atividades.length, (index) {
                       final atividade = atividades[index];
 
@@ -437,7 +419,6 @@ class _HomePageState extends State<HomePage> {
 
                     const SizedBox(height: 6),
 
-                    // ESTUDOS DE HOJE
                     Row(
                       children: [
                         const Text(
@@ -468,7 +449,6 @@ class _HomePageState extends State<HomePage> {
 
                     const SizedBox(height: 10),
 
-                    // LISTA DE EXERCÍCIOS
                     ...List.generate(exercicios.length, (index) {
                       final exercicio = exercicios[index];
 
@@ -494,20 +474,16 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
 
-      // MENU INFERIOR
       bottomNavigationBar: BottomMenu(
         selectedIndex: paginaSelecionada,
         onTap: (index) {
           debugPrint('Ícone pressionado: $index');
 
           if (index == 1) {
-            // ÍCONE DE TAREFAS
             _abrirTela(const TarefasPage());
           } else if (index == 2) {
-            // ÍCONE DE CALENDÁRIO
             _abrirTela(const CronogramaPage());
           } else if (index == 3) {
-            // ÍCONE DE MATÉRIAS
             _abrirTela(const MateriasPage());
           } else {
             setState(() {
@@ -520,7 +496,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // CARD REUTILIZÁVEL DE ATIVIDADES E EXERCÍCIOS
   Widget _atividadeCard({
     List<String> etiquetas = const [],
     required String titulo,
@@ -594,7 +569,6 @@ class _HomePageState extends State<HomePage> {
           ),
 
           const SizedBox(width: 5),
-
           // BOTÃO DE EDITAR
           IconButton(
             onPressed: onEditar,
@@ -609,7 +583,6 @@ class _HomePageState extends State<HomePage> {
 
           const SizedBox(width: 5),
 
-          // BOTÃO DE EXCLUIR
           IconButton(
             onPressed: onExcluir,
             padding: EdgeInsets.zero,
